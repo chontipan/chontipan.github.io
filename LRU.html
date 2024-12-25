@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>LRU 58022120</title>
+	<style>
+table {
+    font-family: arial, sans-serif;
+    margin-right: 10px;
+    width: 2%;
+    float: left;
+}
+
+td, th {
+    
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
+
+.fault {
+    border: 2px solid red;
+    color: red;
+    font-weight:bold;
+}
+.non-fault {
+    border: 2px solid green;
+    color: green;
+    font-weight:bold;
+}
+
+</style>
+</head>
+<body>
+	<textarea id="input" name="input" required="" style="width: 100%;">7 0 1 2 0 3 0 4 2 3 0 3 2 1 2 0 1 7 0 1</textarea>
+	<br>
+	<button onclick="start();">Start</button>
+	<hr>
+	<div id="PageFault"></div>
+	<br>
+	<div id="result"></div>
+
+
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+
+	function start() {
+		cal();
+	}
+
+	var rs = [];
+	var bad = [];
+	var display_fault = [];
+	var fault = 0;
+	function cal() {
+		var input = $('#input').val();
+		var _input = input.split(' ');
+
+		for (var i = 0; i < _input.length; i++) {
+			if(i == 0){
+				rs[i] = [input[i],null,null];
+				bad.push(input[i]);
+				display_fault.push(i);
+				fault++
+			}else{
+				if(!select(_input[i],rs[i-1])){
+					display_fault.push(i);
+				}
+
+			}
+		}
+
+		$('#PageFault').html('Page Fault : '+fault+' ครั้ง');
+		for (var i = 0; i < rs.length; i++) {
+			var class_css = (display_fault.includes(i)) ? 'fault':'non-fault';
+			$('#result').append('<table class="'+class_css+'"> <tr> <td><input disabled style="width:100%;" value="'+_input[i]+'"></td> </tr> <tr> <td>'+rs[i][0]+'</td> </tr> <tr> <td>'+rs[i][1]+'</td> </tr> <tr> <td>'+rs[i][2]+'</td> </tr></table>'); 
+		}
+	}
+
+	
+
+	function select(key,box){
+		var status = false;
+		var _box = [];
+		var bad_boolean = false;
+
+		for (var i = 0; i < box.length; i++) {
+			_box[i] = box[i];
+		}
+
+		if(box.includes(key)){
+			status = true;
+			rs[rs.length] = _box;
+			bad.splice(bad.indexOf(key), 1);
+			bad.push(key);
+			return true;
+		}else{
+
+			for (var i = 0; i < box.length; i++) {
+				if(box[i] == null){
+					_box[i] = key;
+					bad_boolean = true;
+					bad.push(key);
+					break;
+				}
+			}
+
+			if(!bad_boolean){
+				for (var i = 0; i < box.length; i++) {
+					if(box[i] == bad[0]){
+						_box[i] = key;
+						bad.push(key);
+						bad.splice(0,1);
+						break;
+					}
+				}
+			}
+		}
+
+		rs[rs.length] = _box;
+		if(!status) fault++;
+		return false;
+	}
+
+	
+</script>
+</html>
